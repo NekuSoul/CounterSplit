@@ -20,6 +20,8 @@ public class NumberScript : MonoBehaviour
 		}
 	}
 
+	public float TargetSize { get; set; } = 5;
+
 	private void ApplySize()
 	{
 		transform.localScale = new Vector3(Size, Size);
@@ -46,27 +48,28 @@ public class NumberScript : MonoBehaviour
 
 	private void Update()
 	{
-		var targetSize = Mathf.Log(Count + 1);
-		// Size = Mathf.Lerp(Size, targetSize, Time.deltaTime * 0.2f);
+		Size = Mathf.Lerp(Size, TargetSize, Time.deltaTime);
 	}
 
 	public void Split(Vector2 cutVector)
 	{
-		var offset = Vector2.Perpendicular(cutVector) * Size * 0.1f;
+		var offset = Vector2.Perpendicular(cutVector) * Size * 0.001f;
 		var newCount = Count / 2;
 
 		{
 			var number = Instantiate(GameManagerScript.Instance.NumberPrefab, transform.parent);
 			number.transform.localPosition = transform.localPosition + (Vector3)offset;
 			number.Count = newCount;
-			number.Size = Size * 0.7f;
+			number.Size = Size;
+			number.TargetSize = Size * 0.6f;
 		}
 
 		{
 			var number = Instantiate(GameManagerScript.Instance.NumberPrefab, transform.parent);
 			number.transform.localPosition = transform.localPosition - (Vector3)offset;
 			number.Count = newCount;
-			number.Size = Size * 0.7f;
+			number.Size = Size;
+			number.TargetSize = Size * 0.6f;
 		}
 
 		GameManagerScript.Instance.UnregisterNumber(this);
