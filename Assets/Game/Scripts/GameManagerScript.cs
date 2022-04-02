@@ -55,10 +55,9 @@ public class GameManagerScript : MonoBehaviour
 			{
 				var numberB = Numbers[b];
 
-				var minDistance = (numberA.Size + numberB.Size) / 2;
 				var curDistance = Vector2.Distance(numberA.transform.position, numberB.transform.position);
 
-				if (curDistance > minDistance)
+				if (curDistance > 1f)
 					continue;
 
 				var forceVector = (numberA.transform.position - numberB.transform.position).normalized;
@@ -68,7 +67,7 @@ public class GameManagerScript : MonoBehaviour
 					forceVector = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
 				}
 
-				var strength = minDistance - curDistance;
+				var strength = 1f - curDistance;
 
 				forceVector *= 1000 * strength * Time.deltaTime;
 

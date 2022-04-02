@@ -53,10 +53,10 @@ public class CutterScript : MonoBehaviour
 			if (number == null)
 				continue;
 
-			if (Vector2.Distance(hit.transform.position, start) < number.Size / 2)
+			if (Vector2.Distance(hit.transform.position, start) < 0.5f)
 				continue;
 			
-			if (Vector2.Distance(hit.transform.position, end) < number.Size / 2)
+			if (Vector2.Distance(hit.transform.position, end) < 0.5f)
 				continue;
 
 			number.Split((end - start).normalized);
