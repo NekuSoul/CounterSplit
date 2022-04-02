@@ -13,7 +13,8 @@ public class GameManagerScript : MonoBehaviour
 
 	public NumberScript NumberPrefab;
 
-	private readonly List<NumberScript> Numbers = new();
+	public List<NumberScript> Numbers { get; } = new();
+	private int nextPushStep = 10;
 
 	public GameManagerScript()
 	{
@@ -23,7 +24,6 @@ public class GameManagerScript : MonoBehaviour
 	private void Start()
 	{
 		StartCoroutine(CountNumbersCoroutine());
-		StartCoroutine(SplitCoroutine());
 	}
 
 	private IEnumerator CountNumbersCoroutine()
@@ -39,31 +39,24 @@ public class GameManagerScript : MonoBehaviour
 		}
 	}
 
-	private IEnumerator SplitCoroutine()
+	private void Update()
 	{
-		while (true)
-		{
-			yield return new WaitForSeconds(3);
+		nextPushStep--;
 
-			foreach (var number in Numbers.ToArray())
-			{
-				number.Split();
-			}
-		}
-	}
+		if (nextPushStep > 0)
+			return;
 
-	private void FixedUpdate()
-	{
-		foreach (var numberA in Numbers)
+		nextPushStep = 10;
+
+		for (var a = 0; a < Numbers.Count; a++)
 		{
-			// ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-			foreach (var numberB in Numbers)
+			var numberA = Numbers[a];
+			for (var b = a + 1; b < Numbers.Count; b++)
 			{
-				if (numberA == numberB)
-					continue;
+				var numberB = Numbers[b];
 
 				var minDistance = (numberA.Size + numberB.Size) / 2;
-				var curDistance = Vector2.Distance(numberA.transform.transform.position, numberB.transform.position);
+				var curDistance = Vector2.Distance(numberA.transform.position, numberB.transform.position);
 
 				if (curDistance > minDistance)
 					continue;
@@ -75,10 +68,15 @@ public class GameManagerScript : MonoBehaviour
 					forceVector = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
 				}
 
-				forceVector *= 3;
+				var strength = minDistance - curDistance;
+
+				forceVector *= 1000 * strength * Time.deltaTime;
 
 				numberA.Rigidbody.AddForce(forceVector);
+				numberB.Rigidbody.AddForce(-forceVector);
 			}
+
+			numberA.Rigidbody.AddForce(-numberA.transform.position * Time.deltaTime * 10);
 		}
 	}
 

@@ -7,9 +7,25 @@ public class NumberScript : MonoBehaviour
 {
 	public TextMeshPro Text;
 	public Rigidbody2D Rigidbody;
-	public float Size = 1;
 
-	private int _count;
+	private float _size = 5;
+
+	public float Size
+	{
+		get => _size;
+		set
+		{
+			_size = value;
+			ApplySize();
+		}
+	}
+
+	private void ApplySize()
+	{
+		transform.localScale = new Vector3(Size, Size);
+	}
+
+	private int _count = 0;
 
 	public int Count
 	{
@@ -25,22 +41,32 @@ public class NumberScript : MonoBehaviour
 	private void Start()
 	{
 		GameManagerScript.Instance.RegisterNumber(this);
-		SetSize();
+		ApplySize();
 	}
 
-	private void SetSize()
+	private void Update()
 	{
-		transform.localScale = new Vector3(Size, Size);
+		var targetSize = Mathf.Log(Count + 1);
+		// Size = Mathf.Lerp(Size, targetSize, Time.deltaTime * 0.2f);
 	}
 
-	public void Split()
+	public void Split(Vector2 cutVector)
 	{
-		for (var i = 0; i < 2; i++)
+		var offset = Vector2.Perpendicular(cutVector) * Size * 0.1f;
+		var newCount = Count / 2;
+
 		{
 			var number = Instantiate(GameManagerScript.Instance.NumberPrefab, transform.parent);
-			number.transform.localPosition = transform.localPosition;
-			number.Size = Size * 0.8f;
-			number.SetSize();
+			number.transform.localPosition = transform.localPosition + (Vector3)offset;
+			number.Count = newCount;
+			number.Size = Size * 0.7f;
+		}
+
+		{
+			var number = Instantiate(GameManagerScript.Instance.NumberPrefab, transform.parent);
+			number.transform.localPosition = transform.localPosition - (Vector3)offset;
+			number.Count = newCount;
+			number.Size = Size * 0.7f;
 		}
 
 		GameManagerScript.Instance.UnregisterNumber(this);
