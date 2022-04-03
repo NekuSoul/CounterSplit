@@ -7,8 +7,8 @@ public class NumberScript : MonoBehaviour
 {
 	public TextMeshPro Text;
 	public Rigidbody2D Rigidbody;
-	
-	private int _count = 0;
+
+	private int _count = 2;
 
 	public int Count
 	{
@@ -17,6 +17,28 @@ public class NumberScript : MonoBehaviour
 		{
 			_count = value;
 			Text.text = _count.ToString();
+
+			if (value == 13)
+			{
+				GetComponent<SpriteRenderer>().color = Color.red;
+				Text.color = Color.black;
+			}
+			else if (value > 9)
+			{
+				Text.color = Color.red;
+			}
+			else if (value > 6)
+			{
+				Text.color = new Color(1f, 0.4f, 0);
+			}
+			else if (value > 3)
+			{
+				Text.color = new Color(1f, 0.6f, 0);
+			}
+			else
+			{
+				Text.color = Color.black;
+			}
 		}
 	}
 

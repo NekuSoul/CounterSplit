@@ -21,19 +21,20 @@ public class CutterScript : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
-			StartCut();
+			if (!GameManagerScript.Instance.Lost)
+				StartCut();
 		}
 		else if (Input.GetMouseButtonUp(0))
 		{
-			ApplyCut();
+			if (!GameManagerScript.Instance.Lost)
+				ApplyCut();
+
 			HideCutter();
 		}
 		else if (Input.GetMouseButton(0))
 		{
 			ContinueCut();
 		}
-
-		Debug.LogWarning(Input.GetMouseButton(0));
 
 		UpdateLine();
 	}
@@ -64,7 +65,7 @@ public class CutterScript : MonoBehaviour
 	{
 		DragCutAudio.Stop();
 		EndCutAudio.Play();
-		
+
 		var start = StartPoint.position;
 		var end = EndPoint.position;
 		var hits = Physics2D.RaycastAll(start, end - start, Vector2.Distance(start, end));

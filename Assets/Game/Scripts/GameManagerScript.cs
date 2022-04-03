@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManagerScript : MonoBehaviour
@@ -12,20 +14,22 @@ public class GameManagerScript : MonoBehaviour
 	public Transform Storage;
 
 	public NumberScript NumberPrefab;
-
+	public TextMeshProUGUI ScoreText;
+	public TextMeshProUGUI ResetText;
 	public AudioSource TickAudio;
-
+	
+	private bool _gameStarted = false;
+	private bool _allowReset = false;
+	private int _score;
+	
 	public List<NumberScript> Numbers { get; } = new();
 	private int nextPushStep = 10;
+	
+	public bool Lost { get; private set; }
 
 	public GameManagerScript()
 	{
 		Instance = this;
-	}
-
-	private void Start()
-	{
-		StartCoroutine(CountNumbersCoroutine());
 	}
 
 	private IEnumerator CountNumbersCoroutine()
@@ -35,7 +39,7 @@ public class GameManagerScript : MonoBehaviour
 			yield return new WaitForSeconds(0.9f);
 
 			var highestNumber = 0;
-			
+
 			foreach (var number in Numbers)
 			{
 				highestNumber = Math.Max(highestNumber, number.Count);
@@ -44,18 +48,50 @@ public class GameManagerScript : MonoBehaviour
 			TickAudio.volume = 1 + highestNumber / 10f;
 			// TickAudio.pitch = 1 + highestNumber / 100f;
 			TickAudio.Play();
-			
+
 			yield return new WaitForSeconds(0.1f);
 
+			var lost = false;
 			foreach (var number in Numbers)
 			{
 				number.Count++;
+				if (!Lost && number.Count == 13)
+				{
+					Lost = true;
+					StartCoroutine(LostTimeOutCoroutine());
+				}
+			}
+
+			_score++;
+			ScoreText.text = _score.ToString();
+
+			if (Lost)
+			{
+				foreach (var number in Numbers)
+				{
+					if (number.Count != 13)
+						number.GetComponent<SpriteRenderer>().color = Color.black;
+				}
+
+				break;
 			}
 		}
 	}
 
+	private IEnumerator LostTimeOutCoroutine()
+	{
+		yield return new WaitForSeconds(3);
+		_allowReset = true;
+		ResetText.gameObject.SetActive(true);
+	}
+
 	private void Update()
 	{
+		if (Lost && _allowReset && Input.GetMouseButtonDown(0))
+		{
+			SceneManager.LoadScene(0);
+		}	
+		
 		nextPushStep--;
 
 		if (nextPushStep > 0)
@@ -97,6 +133,12 @@ public class GameManagerScript : MonoBehaviour
 	public void RegisterNumber(NumberScript number)
 	{
 		Numbers.Add(number);
+
+		if (!_gameStarted && Numbers.Count == 2)
+		{
+			StartCoroutine(CountNumbersCoroutine());
+			_gameStarted = true;
+		}
 	}
 
 	public void UnregisterNumber(NumberScript number)
