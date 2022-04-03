@@ -17,19 +17,31 @@ public class GameManagerScript : MonoBehaviour
 	public TextMeshProUGUI ScoreText;
 	public TextMeshProUGUI ResetText;
 	public AudioSource TickAudio;
-	
+	public Animator HelpText;
+
 	private bool _gameStarted = false;
 	private bool _allowReset = false;
 	private int _score;
-	
+
+	private static bool _firstGame = true;
+
 	public List<NumberScript> Numbers { get; } = new();
 	private int nextPushStep = 10;
-	
+
 	public bool Lost { get; private set; }
 
 	public GameManagerScript()
 	{
 		Instance = this;
+	}
+
+	private void Start()
+	{
+		if (_firstGame)
+			return;
+
+		HelpText.gameObject.SetActive(false);
+		_firstGame = false;
 	}
 
 	private IEnumerator CountNumbersCoroutine()
@@ -51,7 +63,6 @@ public class GameManagerScript : MonoBehaviour
 
 			yield return new WaitForSeconds(0.1f);
 
-			var lost = false;
 			foreach (var number in Numbers)
 			{
 				number.Count++;
@@ -87,11 +98,17 @@ public class GameManagerScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			Application.Quit();
+			return;
+		}
+
 		if (Lost && _allowReset && Input.GetMouseButtonDown(0))
 		{
 			SceneManager.LoadScene(0);
-		}	
-		
+		}
+
 		nextPushStep--;
 
 		if (nextPushStep > 0)
@@ -136,6 +153,9 @@ public class GameManagerScript : MonoBehaviour
 
 		if (!_gameStarted && Numbers.Count == 2)
 		{
+			_score++;
+			ScoreText.text = _score.ToString();
+			HelpText.SetBool("Hide", true);
 			StartCoroutine(CountNumbersCoroutine());
 			_gameStarted = true;
 		}

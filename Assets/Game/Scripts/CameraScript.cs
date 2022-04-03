@@ -47,17 +47,14 @@ public class CameraScript : MonoBehaviour
 			var maxAbsWidth = Mathf.Max(Mathf.Abs(minWidth), Mathf.Abs(maxWidth));
 			var maxAbsHeight = Mathf.Max(Mathf.Abs(minHeight), Mathf.Abs(maxHeight));
 
-			if (maxAbsHeight * Screen.width < maxAbsWidth * Screen.height)
-			{
-				targetSize = maxAbsHeight / 2f;
-			}
-			else
-			{
-				targetSize = maxAbsWidth / 2f;
-			}
+			var aspectRatio = Screen.width / (float)Screen.height;
 
-			targetSize += 2;
-			targetSize *= 2;
+			var adjustedMaxAbsWidth = maxAbsWidth / aspectRatio;
+
+			targetSize = Mathf.Max(maxAbsHeight, adjustedMaxAbsWidth) / 2f;
+
+			targetSize += 1;
+			targetSize *= 1.5f;
 		}
 	}
 }
