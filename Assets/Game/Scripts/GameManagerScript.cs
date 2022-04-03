@@ -13,6 +13,8 @@ public class GameManagerScript : MonoBehaviour
 
 	public NumberScript NumberPrefab;
 
+	public AudioSource TickAudio;
+
 	public List<NumberScript> Numbers { get; } = new();
 	private int nextPushStep = 10;
 
@@ -30,7 +32,20 @@ public class GameManagerScript : MonoBehaviour
 	{
 		while (true)
 		{
-			yield return new WaitForSeconds(1);
+			yield return new WaitForSeconds(0.9f);
+
+			var highestNumber = 0;
+			
+			foreach (var number in Numbers)
+			{
+				highestNumber = Math.Max(highestNumber, number.Count);
+			}
+
+			TickAudio.volume = 1 + highestNumber / 10f;
+			// TickAudio.pitch = 1 + highestNumber / 100f;
+			TickAudio.Play();
+			
+			yield return new WaitForSeconds(0.1f);
 
 			foreach (var number in Numbers)
 			{
@@ -57,7 +72,7 @@ public class GameManagerScript : MonoBehaviour
 
 				var curDistance = Vector2.Distance(numberA.transform.position, numberB.transform.position);
 
-				if (curDistance > 1f)
+				if (curDistance > 2f)
 					continue;
 
 				var forceVector = (numberA.transform.position - numberB.transform.position).normalized;
@@ -67,7 +82,7 @@ public class GameManagerScript : MonoBehaviour
 					forceVector = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
 				}
 
-				var strength = 1f - curDistance;
+				var strength = 2f - curDistance;
 
 				forceVector *= 1000 * strength * Time.deltaTime;
 

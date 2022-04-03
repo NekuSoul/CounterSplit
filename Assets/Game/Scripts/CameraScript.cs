@@ -7,11 +7,18 @@ public class CameraScript : MonoBehaviour
 	public Camera Camera;
 
 	private float targetSize;
-	private Vector2 targetFocus;
+	private Vector3 targetFocus;
 
 	private void Start()
 	{
+		targetSize = Camera.orthographicSize;
 		StartCoroutine(FrameCoroutine());
+	}
+
+	private void Update()
+	{
+		transform.position = Vector3.Lerp(transform.position, targetFocus, 10f * Time.deltaTime);
+		Camera.orthographicSize = Mathf.Lerp(Camera.orthographicSize, targetSize, 10f * Time.deltaTime);
 	}
 
 	private IEnumerator FrameCoroutine()
@@ -35,7 +42,7 @@ public class CameraScript : MonoBehaviour
 				maxHeight = Mathf.Max(maxHeight, position.y);
 			}
 
-			targetFocus = new Vector2(Mathf.Lerp(minWidth, maxWidth, 0.5f), Mathf.Lerp(minHeight, maxHeight, 0.5f));
+			targetFocus = new Vector3(Mathf.Lerp(minWidth, maxWidth, 0.5f), Mathf.Lerp(minHeight, maxHeight, 0.5f), -10);
 
 			var maxAbsWidth = Mathf.Max(Mathf.Abs(minWidth), Mathf.Abs(maxWidth));
 			var maxAbsHeight = Mathf.Max(Mathf.Abs(minHeight), Mathf.Abs(maxHeight));
@@ -49,8 +56,8 @@ public class CameraScript : MonoBehaviour
 				targetSize = maxAbsWidth / 2f;
 			}
 
-			Camera.orthographicSize = targetSize + 1;
-			Camera.transform.localPosition = new Vector3(targetFocus.x, targetFocus.y, -10);
+			targetSize += 2;
+			targetSize *= 2;
 		}
 	}
 }
